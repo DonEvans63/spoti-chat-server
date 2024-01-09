@@ -7,105 +7,77 @@ const { faker } = require('@faker-js/faker');
 
 // test POST route
 describe('POST /users', () => {
-	it('should create a new user and have valid email', (done) => {
-		const randomEmail = faker.internet.email();
+    it('should create a new user and have valid email', async (done) => {
+        const randomEmail = faker.internet.email();
         const randomUserName = faker.internet.userName();
         const randomPassword = faker.internet.password();
-		request(app)
-			.post('/users/new')
-			.type('form')
-			.send({
-				// streetAddress: '3560 Becker Burgs',
-				// city: 'Miami',
-				// state: 'Florida',
-				// zipCode: 98758,
-                // firstName: req.body.firstName,
-                // lastName: req.body.lastName,
-                // username: req.body.username,
-                // email: req.body.email,
-                // password: req.body.password,
-    
-				firstName: faker.person.firstName(),
-				lastName: faker.person.lastName(),
-                userName: randomUserName,
-				email: randomEmail,
-                password: randomPassword
-				// jobTitle: 'Systems Engineer',
-				// birthdate: '1984-02-24T18:11:20.246Z',
-				// number: '(500) 519-6792',
-			})
-			.then((response) => {
-				console.log('new user created', response._body);
-				expect(response._body.email).to.be.equal(randomEmail);
-				done();
-			})
-			.catch((error) => {
-				console.log('error', error);
-				throw error;
-			});
-	});
+        try {
+            const response = await request(app)
+                .post('/users/signup')
+                .set('Content-Type', 'application/x-www-form-urlencoded')
+                .send({
+                    firstName: faker.person.firstName(),
+                    lastName: faker.person.lastName(),
+                    username: faker.internet.userName(),
+                    email: randomEmail, 
+                    password: faker.internet.password()
+                })
+            console.log('new user created', response._body);
+            expect(response._body.email).to.be.equal(randomEmail);
+            done();
+        }
+            catch(error)  {
+                console.log('error', error);
+                throw error;
+            };
+    });
 
-	it('returns a 200 response', (done) => {
-		const randomEmail = faker.internet.email();
-		request(app)
-			.post('/users/new')
-			.type('form')
-			.send({
+    it('returns a 200 response', (done) => {
+        const randomEmail = faker.internet.email();
+        request(app)
+            .post('/users/signup')
+            .type('form')
+            .send({
                 firstName: faker.person.firstName(),
-				lastName: faker.person.lastName(),
-                userName: randomUserName,
-				email: randomEmail,
-                password: randomPassword
-                // firstName: req.body.firstName,
-                // lastName: req.body.lastName,
-                // username: req.body.username,
-                // email: req.body.email,
-                // password: req.body.password,
-    
-				// streetAddress: '3560 Becker Burgs',
-				// city: 'Miami',
-				// state: 'Florida',
-				// zipCode: 98758,
-				// firstName: faker.person.firstName(),
-				// lastName: faker.person.lastName(),
-				// email: randomEmail,
-				// jobTitle: 'Systems Engineer',
-				// birthdate: '1984-02-24T18:11:20.246Z',
-				// number: '(500) 519-6792',
-			})
-			.expect(200, done);
-	});
+                lastName: faker.person.lastName(),
+                username: faker.internet.userName(),
+                email: randomEmail,
+                password: faker.internet.password()
+
+            })
+            .expect(200, done);
+    });
 });
 
 describe('GET /', () => {
-	it('returns a 200 response', (done) => {
-		request(app).get('/').expect(200, done);
-	});
+    it('returns a 200 response', (done) => {
+        request(app).get('/').expect(200, done);
+    });
 });
 
 // test users
 describe('GET /users', () => {
-	it('returns a 200 response', (done) => {
-		request(app).get('/users').expect(200, done);
-	});
-	it('returns a user with email', (done) => {
-		request(app)
-			.get('/users')
-			.then((result) => {
-				console.log('result', result._body[0]);
-				expect(result._body[0]).to.have.property('email');
-				done();
-			});
-	});
-	it('should have more than 1 user', (done) => {
-		request(app)
-			.get('/users')
-			.then((result) => {
-				console.log('result', result._body);
-				expect(result._body.length).to.be.above(1); // expect(10).to.be.above(5);
-				done();
-			});
-	});
+    it('returns a 200 response', (done) => {
+        request(app).get('/users').expect(200, done);
+    });
+    it('returns a user with email', (done) => {
+        request(app)
+            .get('/users')
+            .then((result) => {
+                console.log('result', result._body[0]);
+                expect(result._body[0]).to.have.property('email');
+                done();
+            });
+    });
+    it('should have more than 1 user', (done) => {
+        request(app)
+            .get('/users')
+            .then((result) => {
+                console.log('result', result._body);
+                expect(result._body.length).to.be.above(1); // expect(10).to.be.above(5);
+                done();
+            });
+    });
 });
 
 // PUT /users/:id
@@ -113,41 +85,41 @@ describe('GET /users', () => {
 // 	it('should update an existing user phone number', (done) => {
 // 		// create a new user
 
-	// 	let newUser = createRandomUser();
-	// 	// newUser = { ...newUser, ...newUser.address };
-	// 	delete newUser.address;
-	// 	request(app)
-	// 		.post('/users/new')
-	// 		.type('form')
-	// 		.send(newUser)
-	// 		.then((response) => {
-	// 			console.log('new user created', response._body);
-	// 			const userId = response._body._id;
-	// 			console.log('--- userId ---', userId);
-	// 			const randomNumber = faker.phone.number().toString();
-	// 			console.log('randomNumber', randomNumber);
-	// 			// Find the new user and update
-	// 			request(app)
-	// 				.put(`/users/${userId}`)
-	// 				.type('form')
-	// 				.send({
-	// 					phoneNumber: randomNumber,
-	// 				})
-	// 				.then((updatedResponse) => {
-	// 					console.log('updatedResponse', updatedResponse._body);
-	// 					expect(updatedResponse._body.phoneNumber).to.be.equal(randomNumber);
-	// 					done();
-	// 				})
-	// 				.catch((error) => {
-	// 					console.error('error', error);
-	// 					throw error;
-	// 				});
-	// 		})
-	// 		.catch((error) => {
-	// 			console.log('error', error);
-	// 			throw error;
-	// 		});
-	// });
+// 	let newUser = createRandomUser();
+// 	// newUser = { ...newUser, ...newUser.address };
+// 	delete newUser.address;
+// 	request(app)
+// 		.post('/users/new')
+// 		.type('form')
+// 		.send(newUser)
+// 		.then((response) => {
+// 			console.log('new user created', response._body);
+// 			const userId = response._body._id;
+// 			console.log('--- userId ---', userId);
+// 			const randomNumber = faker.phone.number().toString();
+// 			console.log('randomNumber', randomNumber);
+// 			// Find the new user and update
+// 			request(app)
+// 				.put(`/users/${userId}`)
+// 				.type('form')
+// 				.send({
+// 					phoneNumber: randomNumber,
+// 				})
+// 				.then((updatedResponse) => {
+// 					console.log('updatedResponse', updatedResponse._body);
+// 					expect(updatedResponse._body.phoneNumber).to.be.equal(randomNumber);
+// 					done();
+// 				})
+// 				.catch((error) => {
+// 					console.error('error', error);
+// 					throw error;
+// 				});
+// 		})
+// 		.catch((error) => {
+// 			console.log('error', error);
+// 			throw error;
+// 		});
+// });
 
 // 	it('returns a 200 response', (done) => {
 // 		// create a new user
@@ -180,45 +152,36 @@ describe('GET /users', () => {
 // 			});
 // 	});
 // });
-
+let userId;
 // DELETE
 describe('DELETE /users/:id', () => {
-	it('returns a 200 response', (done) => {
-		// create a new user
-		let newUser = createRandomUser();
-		newUser = { ...newUser, ...newUser.address };
-		delete newUser.address;
+    it('returns a 200 response', (done) => {
+        // create a new user
+        let newUser = new User(createRandomUser());
+        const savedUser = newUser.save();
+        userId = savedUser._id;
+    
 
-		request(app)
-			.post('/users/new')
-			.type('form')
-			.send(newUser)
-			.then((response) => {
-				const userId = response._body._id;
-				// Find the new user and remove
-				request(app).delete(`/users/${userId}`).expect(200, done);
-			})
-			.catch((error) => {
-				console.log('error', error);
-				throw error;
-			});
-	});
+        request(app).delete(`/users/${userId}`).expect(200, done)
+            .catch((error) => {
+                console.log('error', error);
+                throw error;
+            });
+        });
+        
 });
 
 function createRandomUser() {
-	const randomEmail = faker.internet.email();
-	return {
-		address: '3560 Becker Burgs',
-		city: 'Miami',
-		state: 'Florida',
-		zipCode: 98758,
-		firstName: faker.person.firstName(),
-		lastName: faker.person.lastName(),
-		email: randomEmail,
-		jobTitle: 'Systems Engineer',
-		birthdate: '1984-02-24T18:11:20.246Z',
-		phoneNumber: '(500) 519-6792',
-	};
+    const randomEmail = faker.internet.email();
+    return {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        username: faker.internet.userName(),
+        email: randomEmail,
+        password: faker.internet.password(),
+        bio: 'Winning',
+        dateOfBirth: '9/21/1959'
+    };
 }
 
 
